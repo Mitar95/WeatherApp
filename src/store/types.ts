@@ -18,8 +18,8 @@ type WeatherBasic = {
 
 export type CurrentWeather = WeatherBasic;
 
-export type Forecast = WeatherBasic & {
-  date: string;
+export type Forecast = Partial<WeatherBasic> & {
+  date: number;
   tempMin: number;
   tempMax: number;
   icon: string;

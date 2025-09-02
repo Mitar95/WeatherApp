@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -7,30 +7,74 @@ import {
   FlatList,
   Text,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
-import { fetchCities } from "../features/search/searchSlice";
+import {
+  addCityToRecent,
+  clearRecent,
+  clearSearch,
+  fetchCities,
+} from "../features/search/searchSlice";
 import { fetchWeather } from "../features/weather/weatherSlice";
 import { City } from "../store/types";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
   const dispatch = useDispatch<AppDispatch>();
-  const cities = useSelector((state: RootState) => state.search.cities);
+  const { cities, recent } = useSelector((state: RootState) => state.search);
 
-  const renderSearchItem = ({ item }: { item: City }) => {
+  useEffect(() => {
+    if (!query) return;
+
+    const timeout = setTimeout(() => {
+      dispatch(fetchCities(query));
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [query, dispatch]);
+
+  const renderRecentItem = ({ item }: { item: City }) => {
     const onPress = () => {
       dispatch(fetchWeather({ lat: item.lat, lon: item.lon }));
     };
 
     return (
-      <TouchableOpacity onPress={onPress} style={styles.searchItem}>
-        <Text>
-          {item.name} {item.lat} {item.lon}
-        </Text>
+      <TouchableOpacity onPress={onPress} style={styles.recentItem}>
+        <Text>{item.name}</Text>
       </TouchableOpacity>
     );
+  };
+
+  const renderSearchItem = ({ item }: { item: City }) => {
+    const onPress = () => {
+      dispatch(fetchWeather({ lat: item.lat, lon: item.lon }));
+      dispatch(addCityToRecent(item));
+      dispatch(clearSearch());
+      setQuery("");
+    };
+
+    return (
+      <TouchableOpacity onPress={onPress} style={styles.searchItem}>
+        <Text>{item.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const onClearPress = () => {
+    Alert.alert("Clear Recent Searches?", "", [
+      {
+        text: "Clear",
+        onPress: () => {
+          dispatch(clearRecent());
+        },
+        style: "destructive",
+      },
+      {
+        text: "Cancel",
+      },
+    ]);
   };
 
   return (
@@ -45,10 +89,18 @@ export default function SearchBar() {
         <Button title="Search" onPress={() => dispatch(fetchCities(query))} />
       </View>
 
-      {cities?.length && (
+      {!!recent?.length && (
+        <FlatList
+          horizontal
+          ListFooterComponent={<Button title="Clear" onPress={onClearPress} />}
+          data={recent}
+          renderItem={renderRecentItem}
+        />
+      )}
+
+      {!!cities?.length && (
         <FlatList data={cities} renderItem={renderSearchItem} />
       )}
-      {/* <Text style={{ fontSize: 6 }}>{JSON.stringify(cities, null, 1)}</Text> */}
     </View>
   );
 }
@@ -63,6 +115,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
     padding: 8,
     borderRadius: 5,
+  },
+  recentItem: {
+    padding: 6,
+    backgroundColor: "yellow",
   },
   searchItem: {
     padding: 16,

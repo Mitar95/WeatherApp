@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { Forecast } from "../store/types";
+import { format as formatDate } from "date-fns";
 
 export default function ForecastCard({ item }: { item: Forecast }) {
-  const date = new Date(item.temperature * 1000).toLocaleDateString(undefined, {
-    weekday: "short",
-  });
+  const date = formatDate(new Date(item.date), "EEE");
+
   return (
     <View style={styles.card}>
       <Text>{date}</Text>
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     margin: 5,
-    backgroundColor: "#eee",
+    backgroundColor: "azure",
     borderRadius: 10,
   },
 });

@@ -1,18 +1,18 @@
 import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Forecast } from "../store/types";
 import { format as formatDate } from "date-fns";
+import { ConditionIcons } from "../features/weather/weatherUtils";
 
 export default function ForecastCard({ item }: { item: Forecast }) {
   const date = formatDate(new Date(item.date), "EEE");
+  const icon = item.conditionKey ? ConditionIcons[item.conditionKey] : "-";
 
   return (
     <View style={styles.card}>
       <Text>{date}</Text>
-      <Image
-        source={{ uri: `https://openweathermap.org/img/wn/${item.icon}.png` }}
-        style={{ width: 40, height: 40 }}
-      />
+      <Text style={styles.icon}>{icon}</Text>
+
       <Text>
         {Math.round(item.tempMin)}° / {Math.round(item.tempMax)}°
       </Text>
@@ -27,5 +27,8 @@ const styles = StyleSheet.create({
     margin: 5,
     backgroundColor: "azure",
     borderRadius: 10,
+  },
+  icon: {
+    fontSize: 32,
   },
 });

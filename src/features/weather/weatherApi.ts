@@ -1,4 +1,5 @@
 import { Forecast, CurrentWeather } from "../../store/types";
+import { mapWeatherCodeToCondition } from "./weatherUtils";
 
 const API_KEY = "936a67893d2bfcc305a5ab7b9137b83c";
 
@@ -13,6 +14,8 @@ export const getWeather = async (
 
   const data = await response.json();
 
+  console.log(data);
+
   if (!data) {
     return { weather: null };
   }
@@ -26,7 +29,7 @@ export const getWeather = async (
       speed: data.wind.speed,
       deg: data.wind.deg,
     },
-    icon: data.weather[0]?.icon,
+    conditionKey: mapWeatherCodeToCondition(data.weather[0]?.id),
   };
 
   return { weather };
@@ -56,7 +59,7 @@ export const getForecast = async (
         name: f.name,
         tempMin: f.main.temp_min,
         tempMax: f.main.temp_max,
-        icon: f.weather[0]?.icon,
+        conditionKey: mapWeatherCodeToCondition(f.weather[0]?.id),
       };
     }) ?? [];
 

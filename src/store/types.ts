@@ -13,7 +13,7 @@ type WeatherBasic = {
     speed: number;
     deg: number;
   };
-  icon: string;
+  conditionKey: ConditionKeys;
 };
 
 export type CurrentWeather = WeatherBasic;
@@ -24,3 +24,14 @@ export type Forecast = Partial<WeatherBasic> & {
   tempMax: number;
   icon: string;
 };
+
+export enum ConditionKeys {
+  Thunderstorm = "Thunderstorm",
+  Drizzle = "Drizzle",
+  Rain = "Rain",
+  Snow = "Snow",
+  Atmosphere = "Atmosphere",
+  Clear = "Clear",
+  Clouds = "Clouds",
+  Unknown = "Unknown",
+}

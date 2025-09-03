@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": 23,
+    "lat": 40
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 27.33,
+    "feels_like": 28.68,
+    "temp_min": 27.33,
+    "temp_max": 27.33,
+    "pressure": 1012,
+    "humidity": 62,
+    "sea_level": 1012,
+    "grnd_level": 1013
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 1.34,
+    "deg": 21,
+    "gust": 1.34
+  },
+  "clouds": {
+    "all": 5
+  },
+  "dt": 1756891165,
+  "sys": {
+    "country": "GR",
+    "sunrise": 1756871867,
+    "sunset": 1756918644
+  },
+  "timezone": 10800,
+  "id": 257282,
+  "name": "Melivoia",
+  "cod": 200
+}

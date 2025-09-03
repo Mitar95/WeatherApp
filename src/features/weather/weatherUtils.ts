@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Forecast } from "../../store/types";
+import { ConditionKeys, Forecast } from "../../store/types";
 
 export const groupByDay = (data: Array<Forecast>, excludeToday = true) => {
   const grouped = data.reduce(
@@ -46,3 +46,36 @@ export const getDailyForecast = (
 
   return dailyForecast;
 };
+
+export const weatherBackgrounds: Record<ConditionKeys, string[]> = {
+  Thunderstorm: ["#373B44", "#4286f4"], // dark stormy blue
+  Drizzle: ["#89F7FE", "#66A6FF"], // light aqua blue
+  Rain: ["#00C6FB", "#005BEA"], // deep blue
+  Snow: ["#E0EAFC", "#CFDEF3"], // icy white-blue
+  Atmosphere: ["#757F9A", "#D7DDE8"], // misty gray
+  Clear: ["#56CCF2", "#2F80ED"], // sunny blue sky
+  Clouds: ["#757F9A", "#D7DDE8"], // cloudy gray
+  Unknown: ["#bdc3c7", "#2c3e50"], // fallback gradient
+};
+
+export const ConditionIcons: Record<ConditionKeys, string> = {
+  [ConditionKeys.Thunderstorm]: "⛈️",
+  [ConditionKeys.Drizzle]: "🌦️",
+  [ConditionKeys.Rain]: "🌧️",
+  [ConditionKeys.Snow]: "❄️",
+  [ConditionKeys.Atmosphere]: "🌫️",
+  [ConditionKeys.Clear]: "☀️",
+  [ConditionKeys.Clouds]: "☁️",
+  [ConditionKeys.Unknown]: "❓",
+};
+
+export function mapWeatherCodeToCondition(code: number): ConditionKeys {
+  if (code >= 200 && code < 300) return ConditionKeys.Thunderstorm;
+  if (code >= 300 && code < 400) return ConditionKeys.Drizzle;
+  if (code >= 500 && code < 600) return ConditionKeys.Rain;
+  if (code >= 600 && code < 700) return ConditionKeys.Snow;
+  if (code >= 700 && code < 800) return ConditionKeys.Atmosphere;
+  if (code === 800) return ConditionKeys.Clear;
+  if (code > 800 && code < 900) return ConditionKeys.Clouds;
+  return ConditionKeys.Unknown;
+}

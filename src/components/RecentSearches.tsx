@@ -9,7 +9,7 @@ import {
 import { City } from "../store/types";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
-import { fetchWeather } from "../features/weather/weatherSlice";
+import { fetchWeather } from "../features/weather/weather.slice";
 
 export default function RecentSearches() {
   const { recent } = useSelector((state: RootState) => state.search);

@@ -21,9 +21,11 @@ export default function ForecastCard({ item, isLoading }: Props) {
 
   const onPress = () => {
     const title = formatDate(new Date(item.date), "EEEE, dd MMMM");
-    const description = `L: ${Math.round(item.tempMin)}° H: ${Math.round(
-      item.tempMax
-    )}°\n${icon}\nHumidity: ${item.humidity}%\nWind: ${item.wind?.speed} m/s`;
+    const description = `H: ${Math.round(item.tempMax)}° L: ${Math.round(
+      item.tempMin
+    )}°\n${icon}\nHumidity: ${item.humidity}%\nWind: ${Math.round(
+      item.wind?.speed ?? 0
+    )}m/s`;
     Alert.alert(title, description);
   };
 
@@ -34,13 +36,13 @@ export default function ForecastCard({ item, isLoading }: Props) {
       style={styles.card}
     >
       {isLoading ? (
-        <ActivityIndicator size={32} />
+        <ActivityIndicator color={"#fff"} size={32} />
       ) : (
         <>
-          <Text>{date}</Text>
+          <Text style={styles.text}>{date}</Text>
           <Text style={styles.icon}>{icon}</Text>
-          <Text>
-            {`${Math.round(item.tempMin)}° / ${Math.round(item.tempMax)}°`}
+          <Text style={styles.textBold}>
+            {`${Math.round(item.tempMax)}° / ${Math.round(item.tempMin)}°`}
           </Text>
         </>
       )}
@@ -53,10 +55,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "azure",
+    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 10,
     height: 90,
     maxWidth: 70,
+  },
+  text: {
+    color: "#fff",
+  },
+  textBold: {
+    color: "#fff",
+    fontWeight: "600",
   },
   icon: {
     fontSize: 32,

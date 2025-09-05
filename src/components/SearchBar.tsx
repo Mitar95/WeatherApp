@@ -19,11 +19,11 @@ import {
   clearRecent,
   clearSearch,
   fetchCities,
-} from "../features/search/searchSlice";
+} from "../features/search/search.slice";
 import { AppDispatch, RootState } from "../store/store";
-import { fetchWeather } from "../features/weather/weatherSlice";
+import { fetchWeather } from "../features/weather/weather.slice";
 import { City } from "../store/types";
-import { getCurrentPosition } from "../features/geolocation/geolocation";
+import { getCurrentPosition } from "../utils/location.utils";
 import { countryCodeToFlagEmoji } from "../utils/search.utils";
 import { getContrastColor } from "../utils/colors.utils";
 
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     top: 8,
     marginHorizontal: 16,
     borderRadius: 8,
-    maxHeight: 250,
+    maxHeight: 200,
   },
   cityItem: {
     flexDirection: "row",

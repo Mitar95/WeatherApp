@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getWeather, getForecast } from "./weatherApi";
+import { getWeather, getForecast } from "./weather.api";
 import { CurrentWeather, Forecast } from "../../store/types";
 import { getDailyForecast, groupByDay } from "../../utils/weather.utils";
 

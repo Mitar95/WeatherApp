@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import weatherReducer from "../features/weather/weatherSlice";
-import searchReducer from "../features/search/searchSlice";
+import weatherReducer from "../features/weather/weather.slice";
+import searchReducer from "../features/search/search.slice";
 import { persistStore, persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { getCities } from "./searchApi";
+import { getCities } from "./search.api";
 import { City } from "../../store/types";
 import { Alert } from "react-native";
 

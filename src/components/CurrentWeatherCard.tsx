@@ -28,7 +28,7 @@ export default function CurrentWeather() {
       valueComponent: (
         <Text
           style={[
-            styles.details,
+            styles.detailsValue,
             {
               transform: [{ rotate: `${weather.wind.deg}deg` }],
             },
@@ -44,12 +44,12 @@ export default function CurrentWeather() {
     return (
       <View key={title} style={styles.detailsCard}>
         {isLoading ? (
-          <ActivityIndicator size={24} />
+          <ActivityIndicator color={"#fff"} size={24} />
         ) : (
           <>
-            <Text style={styles.details}>{title}</Text>
-            <View style={styles.detailsValue}>
-              <Text style={styles.details}>{value}</Text>
+            <Text style={styles.detailsTitle}>{title}</Text>
+            <View style={styles.detailsValueContainer}>
+              <Text style={styles.detailsValue}>{value}</Text>
               {valueComponent}
             </View>
           </>
@@ -120,16 +120,25 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.2)",
     height: 72,
     width: 84,
-    rowGap: 2,
+    rowGap: 8,
   },
   detailsContainer: {
     flexDirection: "row",
     width: "100%",
     columnGap: 12,
   },
-  details: {
+  detailsTitle: {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: "400",
+    color: "#ffffff",
+  },
+  detailsValueContainer: {
+    flexDirection: "row",
+  },
+  detailsValue: {
+    textAlign: "center",
+    fontSize: 16,
     fontWeight: "600",
     color: "#fff",
   },
@@ -138,8 +147,5 @@ const styles = StyleSheet.create({
     fontSize: 72,
     marginBottom: 12,
     letterSpacing: 4,
-  },
-  detailsValue: {
-    flexDirection: "row",
   },
 });

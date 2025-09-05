@@ -1,11 +1,16 @@
 export type City = {
   name: string;
+  countryName: string;
+  countryCode: string;
   lat: number;
   lon: number;
+  type: "city";
 };
 
 type WeatherBasic = {
   name: string;
+  country: string;
+  countryCode: string;
   temperature: number;
   feelsLike: number;
   humidity: number;
@@ -32,6 +37,7 @@ export enum ConditionKeys {
   Snow = "Snow",
   Atmosphere = "Atmosphere",
   Clear = "Clear",
+  FewClouds = "Few Clouds",
   Clouds = "Clouds",
   Unknown = "Unknown",
 }

@@ -1,56 +1,57 @@
 import React, { useEffect } from "react";
-import { FlatList, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import SearchBar from "../components/SearchBarNew";
+import SearchBar from "../components/SearchBar";
 import CurrentWeatherCard from "../components/CurrentWeatherCard";
-import ForecastCard from "../components/ForecastCard";
 import { AppDispatch, RootState } from "../store/store";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getCurrentPosition } from "../features/geolocation/geolocation";
 import { fetchWeather } from "../features/weather/weatherSlice";
 import WeatherBackground from "../components/WeatherBackground";
-import RecentSearches from "../components/RecentSearches";
+import Forecast from "../components/Forecast";
+import AppSafeArea from "../components/AppSafeArea";
+import { weatherBackgrounds } from "../utils/weather.utils";
+import { lightenHexColor } from "../utils/colors.utils";
 
 export default function WeatherScreen() {
-  const insets = useSafeAreaInsets();
-
   const dispatch = useDispatch<AppDispatch>();
-  const { status } = useSelector((state: RootState) => state.search);
-  const { forecast, weather } = useSelector(
-    (state: RootState) => state.weather
-  );
+  const { weather } = useSelector((state: RootState) => state.weather);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { lat, lon } = await getCurrentPosition();
-        dispatch(fetchWeather({ lat, lon }));
-      } catch {
-        // fallback: ask user to search manually
-      }
-    })();
-  }, []);
+  const bgColors = weather?.conditionKey
+    ? weatherBackgrounds[weather.conditionKey]
+    : ["#89f7fe", "#66a6ff"];
+
+  const init = () => {
+    getCurrentPosition().then(({ lat, lon }) => {
+      dispatch(fetchWeather({ lat, lon }));
+    });
+  };
+
+  useEffect(init, []);
 
   return (
-    <WeatherBackground condition={weather?.conditionKey}>
-      <View
-        style={{
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }}
-      >
-        <SearchBar />
-        <RecentSearches />
-        <CurrentWeatherCard />
-        <FlatList
-          horizontal
-          data={forecast}
-          renderItem={({ item }) => <ForecastCard item={item} />}
-          keyExtractor={(_, index) => index.toString()}
-        />
-      </View>
+    <WeatherBackground colors={bgColors}>
+      <AppSafeArea style={styles.container}>
+        <View style={styles.main}>
+          <CurrentWeatherCard />
+          <Forecast />
+        </View>
+        <SearchBar backgroundColor={lightenHexColor(bgColors[0])} />
+      </AppSafeArea>
     </WeatherBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column-reverse",
+    justifyContent: "space-between",
+  },
+  main: {
+    flex: 1,
+    marginHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    rowGap: 32,
+  },
+});

@@ -22,6 +22,7 @@ ios/*.ipa
 ios/*.xcuserstate
 ios/project.xcworkspace
 ios/Pods
+ios/WeatherApp.xcworkspace/xcuserdata
 
 # Android/IntelliJ
 #
@@ -30,7 +31,8 @@ android/.idea
 android/.gradle
 android/local.properties
 android/*.iml
-android/app/.cxx/*
+android/app/.cxx/
+android/app/build/
 
 # node.js
 #

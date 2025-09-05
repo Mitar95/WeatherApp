@@ -1,12 +1,22 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getWeather, getForecast } from "./weatherApi";
 import { CurrentWeather, Forecast } from "../../store/types";
-import { getDailyForecast, groupByDay } from "./weatherUtils";
+import { getDailyForecast, groupByDay } from "../../utils/weather.utils";
 
 export const fetchWeather = createAsyncThunk(
   "weather/fetchWeather",
-  async ({ lat, lon }: { lat: number; lon: number }) => {
-    const { weather } = await getWeather(lat, lon);
+  async ({
+    lat,
+    lon,
+    city,
+    country,
+  }: {
+    lat: number;
+    lon: number;
+    city?: string;
+    country?: string;
+  }) => {
+    const { weather } = await getWeather(lat, lon, city, country);
     const { forecast } = await getForecast(lat, lon);
     const forecastByDay = groupByDay(forecast);
     const dailyForecast = getDailyForecast(forecastByDay);

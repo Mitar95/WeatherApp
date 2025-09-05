@@ -1,127 +1,222 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   TextInput,
-  Button,
   StyleSheet,
   FlatList,
   Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  ActivityIndicator,
   Alert,
 } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store/store";
 import {
   addCityToRecent,
   clearRecent,
   clearSearch,
   fetchCities,
 } from "../features/search/searchSlice";
+import { AppDispatch, RootState } from "../store/store";
 import { fetchWeather } from "../features/weather/weatherSlice";
 import { City } from "../store/types";
+import { getCurrentPosition } from "../features/geolocation/geolocation";
+import { countryCodeToFlagEmoji } from "../utils/search.utils";
+import { getContrastColor } from "../utils/colors.utils";
 
-export default function SearchBar() {
+type SearchItem = City | { type: "location" | "clear" };
+
+type Props = {
+  backgroundColor: string;
+};
+
+export default function SearchBar({ backgroundColor }: Props) {
+  const [inFocus, setInFocus] = useState(false);
   const [query, setQuery] = useState("");
   const dispatch = useDispatch<AppDispatch>();
-  const { cities, recent } = useSelector((state: RootState) => state.search);
+  const { cities, recent, status } = useSelector(
+    (state: RootState) => state.search
+  );
+
+  const textColor = getContrastColor(backgroundColor);
+  const isLoading = status === "loading";
+  const recentSearches: Array<SearchItem> = recent.length
+    ? [...recent, { type: "clear" }]
+    : [];
+  const searchResults: Array<SearchItem> = cities?.length
+    ? cities
+    : [{ type: "location" }, ...recentSearches];
+
+  const onSubmit = () => {
+    const trimmed = query?.trim();
+    if (trimmed) {
+      dispatch(fetchCities(trimmed));
+    } else {
+      dispatch(clearSearch());
+    }
+  };
 
   useEffect(() => {
-    if (!query) return;
-
-    const timeout = setTimeout(() => {
-      dispatch(fetchCities(query));
-    }, 500);
-
+    if (!query || !query.trim()) return;
+    const timeout = setTimeout(onSubmit, 500);
     return () => clearTimeout(timeout);
   }, [query, dispatch]);
 
-  const renderRecentItem = ({ item }: { item: City }) => {
-    const onPress = () => {
-      dispatch(fetchWeather({ lat: item.lat, lon: item.lon }));
-    };
-
-    return (
-      <TouchableOpacity onPress={onPress} style={styles.recentItem}>
-        <Text>{item.name}</Text>
-      </TouchableOpacity>
-    );
+  const resetSearch = () => {
+    dispatch(clearSearch());
+    Keyboard.dismiss();
+    setQuery("");
   };
 
-  const renderSearchItem = ({ item }: { item: City }) => {
-    const onPress = () => {
-      dispatch(fetchWeather({ lat: item.lat, lon: item.lon }));
-      dispatch(addCityToRecent(item));
-      dispatch(clearSearch());
-      setQuery("");
+  const renderCityItem = ({ item }: { item: SearchItem }) => {
+    const renderData = {
+      icon: <></>,
+      label: "",
+      onPress: () => undefined,
     };
 
+    switch (item.type) {
+      case "city": {
+        renderData.label = item.name;
+        renderData.icon = (
+          <Text style={styles.flag}>
+            {countryCodeToFlagEmoji(item.countryCode)}
+          </Text>
+        );
+        renderData.onPress = () => {
+          dispatch(
+            fetchWeather({
+              lat: item.lat,
+              lon: item.lon,
+              city: item.name,
+              country: item.countryName,
+            })
+          );
+          dispatch(addCityToRecent(item));
+          resetSearch();
+        };
+        break;
+      }
+      case "location": {
+        renderData.label = "Current Location";
+        renderData.icon = <Icon name="navigate" size={22} color="#3f7afaff" />;
+        renderData.onPress = () => {
+          resetSearch();
+          getCurrentPosition().then(({ lat, lon }) => {
+            dispatch(fetchWeather({ lat, lon }));
+          });
+        };
+        break;
+      }
+      case "clear": {
+        renderData.label = "Clear Resent Searches";
+        renderData.icon = <Icon name="close" size={22} color="#3f7afaff" />;
+        renderData.onPress = () => {
+          Alert.alert("Clear Resent Searches?", "", [
+            {
+              style: "destructive",
+              text: "Clear",
+              onPress: () => {
+                dispatch(clearRecent());
+              },
+            },
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+          ]);
+          resetSearch();
+        };
+        break;
+      }
+    }
+
     return (
-      <TouchableOpacity onPress={onPress} style={styles.searchItem}>
-        <Text>{item.name}</Text>
+      <TouchableOpacity onPress={renderData.onPress} style={styles.cityItem}>
+        {renderData.icon}
+        <Text style={[styles.cityText, { color: textColor }]}>
+          {renderData.label}
+        </Text>
       </TouchableOpacity>
     );
-  };
-
-  const onClearPress = () => {
-    Alert.alert("Clear Recent Searches?", "", [
-      {
-        text: "Clear",
-        onPress: () => {
-          dispatch(clearRecent());
-        },
-        style: "destructive",
-      },
-      {
-        text: "Cancel",
-      },
-    ]);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchRow}>
+    <View>
+      <View style={[{ backgroundColor }, styles.container]}>
+        {isLoading ? (
+          <ActivityIndicator size={20} color={textColor} />
+        ) : (
+          <Icon
+            onPress={onSubmit}
+            name={"search"}
+            size={20}
+            color={textColor}
+          />
+        )}
         <TextInput
-          placeholder="Enter city..."
+          style={[styles.input, { color: textColor }]}
+          placeholder="Search city..."
+          placeholderTextColor={textColor}
           value={query}
+          onFocus={() => setInFocus(true)}
+          onBlur={() => setInFocus(false)}
           onChangeText={setQuery}
-          style={styles.input}
+          onSubmitEditing={onSubmit}
         />
-        <Button title="Search" onPress={() => dispatch(fetchCities(query))} />
       </View>
 
-      {!!recent?.length && (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <FlatList
-          horizontal
-          ListFooterComponent={<Button title="Clear" onPress={onClearPress} />}
-          data={recent}
-          renderItem={renderRecentItem}
+          data={inFocus ? searchResults : []}
+          keyboardShouldPersistTaps={"handled"}
+          keyExtractor={(_, index) => `${index}`}
+          renderItem={renderCityItem}
+          style={[styles.resultsList, { backgroundColor }]}
         />
-      )}
-
-      {!!cities?.length && (
-        <FlatList data={cities} renderItem={renderSearchItem} />
-      )}
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {},
-  searchRow: { flexDirection: "row", margin: 10 },
+  container: {
+    flexDirection: "row",
+    borderRadius: 8,
+    padding: 8,
+    alignItems: "center",
+    marginHorizontal: 16,
+    marginTop: 16,
+  },
   input: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    marginRight: 8,
-    padding: 8,
-    borderRadius: 5,
+    marginLeft: 8,
   },
-  recentItem: {
-    padding: 6,
-    backgroundColor: "yellow",
+  resultsList: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 8,
+    marginHorizontal: 16,
+    borderRadius: 8,
+    maxHeight: 250,
   },
-  searchItem: {
-    padding: 16,
-    backgroundColor: "azure",
+  cityItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    columnGap: 12,
+    padding: 12,
+  },
+  cityText: {
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  flag: {
+    fontSize: 18,
   },
 });

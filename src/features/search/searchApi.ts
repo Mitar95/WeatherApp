@@ -1,4 +1,4 @@
-const API_KEY = "6df0485e8fc946dab8e72951df653e9e";
+const API_KEY = "6df0485e8fc946dab8e72951df653e9e"; // todo: move to ENV
 
 export const getCities = async (city: string) => {
   const response = await fetch(

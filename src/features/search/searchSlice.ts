@@ -12,11 +12,14 @@ export const fetchCities = createAsyncThunk(
       return null;
     }
 
-    const cities: Array<City> = res.features.map((c) => {
+    const cities: Array<City> = res.features.map((c: any) => {
       return {
         name: c.properties.city,
+        countryName: c.properties.country,
         lat: c.properties.lat,
         lon: c.properties.lon,
+        countryCode: c.properties.country_code,
+        type: "city",
       };
     });
     return { cities };
@@ -33,12 +36,10 @@ const searchSlice = createSlice({
   reducers: {
     addCityToRecent: (state, action: PayloadAction<City>) => {
       const city = action.payload;
-      const alreadyInRecent = state.recent.some(
-        (r) => r.lat === city.lat && r.lon === city.lon
+      state.recent = state.recent.filter(
+        (r) => !(r.lat === city.lat && r.lon === city.lon)
       );
-      if (!alreadyInRecent) {
-        state.recent.unshift(city);
-      }
+      state.recent.unshift(city);
     },
     clearSearch: (state) => {
       state.cities = [];

@@ -23,7 +23,12 @@ export default function RecentSearches() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{"Recent Searches"}</Text>
-      <ScrollView style={styles.list} horizontal>
+      <ScrollView
+        showsHorizontalScrollIndicator={false}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        horizontal
+      >
         {recent.map((city, idx) => (
           <TouchableOpacity key={idx} onPress={() => onPress(city)}>
             <Text style={styles.city}>{city.name}</Text>
@@ -35,9 +40,23 @@ export default function RecentSearches() {
 }
 
 const styles = StyleSheet.create({
-  container: { marginTop: 12, marginHorizontal: 16 },
-  title: { fontSize: 16, fontWeight: "600", color: "#fff", marginBottom: 8 },
-  list: { flexDirection: "row", flexWrap: "wrap" },
+  container: {
+    marginTop: 12,
+  },
+  title: {
+    marginStart: 16,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    marginBottom: 8,
+  },
+  list: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  listContent: {
+    paddingStart: 16,
+  },
   city: {
     color: "#fff",
     marginRight: 12,
